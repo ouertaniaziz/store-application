@@ -17,22 +17,15 @@ import {
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { auth, db } from "../../config/firebase";
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
-export default function SignupCard() {
+export default function SignIn() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
   const initialState = {
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    birthDate: "",
     email: "",
     password: "",
   };
@@ -47,14 +40,11 @@ export default function SignupCard() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createUserWithEmailAndPassword(auth, inputForm.email, inputForm.password)
+    signInWithEmailAndPassword(auth, inputForm.email, inputForm.password)
       .then((result) => {
-        sendEmailVerification(auth.currentUser);
-        navigate("/mail-verif");
-        // const uid = result.user.uid;
-        // const idRef = db.collection("users");
-        // idRef.add(inputForm);
-        // console.log(uid);
+        auth.currentUser.emailVerified
+          ? navigate("/login-success")
+          : navigate("/mail-verif");
       })
       .catch((error) => console.log(error));
   };
@@ -69,7 +59,7 @@ export default function SignupCard() {
       <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
         <Stack align={"center"}>
           <Heading fontSize={"4xl"} textAlign={"center"}>
-            Sign up
+            Sign In
           </Heading>
           <Text fontSize={"lg"} color={"gray.600"}>
             to enjoy all of our cool features ✌️
@@ -82,50 +72,6 @@ export default function SignupCard() {
           p={8}
         >
           <Stack spacing={4}>
-            <HStack>
-              <Box>
-                <FormControl id="firstName" isRequired>
-                  <FormLabel>First Name</FormLabel>
-                  <Input
-                    name="firstName"
-                    type="text"
-                    onChange={(e) => setForm(e)}
-                  />
-                </FormControl>
-              </Box>
-              <Box>
-                <FormControl id="lastName">
-                  <FormLabel>Last Name</FormLabel>
-                  <Input
-                    name="lastName"
-                    type="text"
-                    onChange={(e) => setForm(e)}
-                  />
-                </FormControl>
-              </Box>
-            </HStack>
-            <HStack>
-              <Box>
-                <FormControl id="phoneNumber" isRequired>
-                  <FormLabel>Phone Number</FormLabel>
-                  <Input
-                    name="phoneNumber"
-                    type="number"
-                    onChange={(e) => setForm(e)}
-                  />
-                </FormControl>
-              </Box>
-              <Box>
-                <FormControl id="birthDate">
-                  <FormLabel>Date of birth</FormLabel>
-                  <Input
-                    name="birthDate"
-                    type="Date"
-                    onChange={(e) => setForm(e)}
-                  />
-                </FormControl>
-              </Box>
-            </HStack>
             <FormControl id="email" isRequired>
               <FormLabel>Email address</FormLabel>
               <Input name="email" type="email" onChange={(e) => setForm(e)} />
@@ -161,7 +107,7 @@ export default function SignupCard() {
                 }}
                 onClick={(e) => handleSubmit(e)}
               >
-                Sign up
+                Sign In
               </Button>
             </Stack>
             <Stack pt={6}>
