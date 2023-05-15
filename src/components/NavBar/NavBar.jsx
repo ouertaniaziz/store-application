@@ -75,7 +75,14 @@ export default function WithSubnavigation() {
           spacing={6}
         >
           <HStack>
-            <Button as={"a"} color={"#004AAD"} fontSize={"sm"} fontWeight={400}>
+            <Button
+              as={"a"}
+              color={"#004AAD"}
+              fontSize={"sm"}
+              fontWeight={400}
+              cursor={"pointer"}
+              onClick={() => navigate("/signIn")}
+            >
               Sign In
             </Button>
             <Button
@@ -84,6 +91,7 @@ export default function WithSubnavigation() {
               fontSize={"sm"}
               fontWeight={600}
               color={"white"}
+              cursor={"pointer"}
               bg={"#367DDD"}
               _hover={{
                 bg: "#367DDD",

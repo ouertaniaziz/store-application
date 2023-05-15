@@ -1,14 +1,22 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import WithSubnavigation from "./NavBar/NavBar";
 import { Routes, Route } from "react-router-dom";
 
 const Routing = () => {
+  const [isConnected, setisConnected] = useState(false);
   const FrontOfficeRouting = React.lazy(() =>
     import("../components/frontOffice/routing")
   );
+  useEffect(() => {
+    if (localStorage.getItem("user")) {
+      setisConnected(true);
+    }
+  }, [localStorage.getItem("user")]);
+
   return (
     <>
-      <WithSubnavigation />
+      {!isConnected ? <WithSubnavigation /> : null}
+
       <Suspense>
         <Routes>
           <Route path="/*" element={<FrontOfficeRouting />} />
