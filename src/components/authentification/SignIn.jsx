@@ -13,16 +13,19 @@ import {
   Text,
   useColorModeValue,
   Link,
+  useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { auth, db } from "../../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { type } from "@testing-library/user-event/dist/type";
+import { getDataWithCustomizedId } from "../../service/service";
 
 export default function SignIn() {
   const navigate = useNavigate();
-
+  const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
 
   const initialState = {
@@ -31,6 +34,7 @@ export default function SignIn() {
   };
 
   const [inputForm, setInputForm] = useState(initialState);
+  const [errorMessage, setErrorMessage] = useState(" ");
 
   const setForm = (e) => {
     e.preventDefault();
@@ -42,16 +46,25 @@ export default function SignIn() {
     e.preventDefault();
     signInWithEmailAndPassword(auth, inputForm.email, inputForm.password)
       .then((result) => {
-        console.log(auth.currentUser);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({ id: auth.currentUser.uid })
-        );
-        auth.currentUser.emailVerified
-          ? navigate("/login-success")
-          : navigate("/mail-verif");
+        getDataWithCustomizedId(auth.currentUser.uid)
+          .then((res) => {
+            localStorage.setItem("user", JSON.stringify(res));
+            console.log(res);
+            if (localStorage.getItem("user")) {
+              auth.currentUser.emailVerified
+                ? navigate(`/${res.role}/${auth.currentUser.uid}`)
+                : navigate("/mail-verif");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        setErrorMessage(error.message);
+        console.log(error.message);
+        console.log(errorMessage);
+      });
   };
 
   return (
@@ -110,7 +123,16 @@ export default function SignIn() {
                 _hover={{
                   bg: "blue.500",
                 }}
-                onClick={(e) => handleSubmit(e)}
+                onClick={(e) => {
+                  handleSubmit(e);
+                  toast({
+                    title: "Error Found",
+                    description: errorMessage,
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                }}
               >
                 Sign In
               </Button>

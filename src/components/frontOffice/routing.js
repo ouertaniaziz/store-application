@@ -12,6 +12,7 @@ const routing = () => {
       <Route path="/signIn" element={<SignIn />} />
       <Route path="/mail-verif" element={<SentMailVerification />} />
       <Route path="/login-success" element={<LoginSuccess />} />
+      <Route path="/login-success/:id" element={<LoginSuccess />} />
     </Routes>
   );
 };

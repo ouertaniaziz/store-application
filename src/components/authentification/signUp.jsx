@@ -13,6 +13,7 @@ import {
   Text,
   useColorModeValue,
   Link,
+  Select,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
@@ -34,6 +35,7 @@ export default function SignupCard() {
     lastName: "",
     phoneNumber: "",
     birthDate: "",
+    role: "",
     email: "",
     password: "",
   };
@@ -43,7 +45,7 @@ export default function SignupCard() {
   const setForm = (e) => {
     e.preventDefault();
     setInputForm({ ...inputForm, [e.target.name]: e.target.value });
-    // console.log(inputForm, "this is my name input");
+    console.log(inputForm, "this is my name input");
   };
 
   const handleSubmit = (e) => {
@@ -51,8 +53,14 @@ export default function SignupCard() {
     createUserWithEmailAndPassword(auth, inputForm.email, inputForm.password)
       .then((result) => {
         // addData(inputForm, "user");
-
-        addDataWithCustomizedId(result.user.uid, inputForm);
+        const userInfo = {
+          firstName: inputForm.firstName,
+          lastName: inputForm.lastName,
+          phoneNumber: inputForm.phoneNumber,
+          birthDate: inputForm.birthDate,
+          role: inputForm.role,
+        };
+        addDataWithCustomizedId(result.user.uid, userInfo);
         sendEmailVerification(auth.currentUser);
 
         navigate("/mail-verif");
@@ -127,6 +135,20 @@ export default function SignupCard() {
                 </FormControl>
               </Box>
             </HStack>
+            <FormControl id="role" isRequired>
+              <Box>
+                <FormLabel>User Role</FormLabel>
+                <Select
+                  name="role"
+                  placeholder="Select option"
+                  onChange={(e) => setForm(e)}
+                >
+                  <option value="Admin">Admin</option>
+                  <option value="Client">Client</option>
+                  <option value="Seller">Seller</option>
+                </Select>
+              </Box>
+            </FormControl>
             <FormControl id="email" isRequired>
               <FormLabel>Email address</FormLabel>
               <Input name="email" type="email" onChange={(e) => setForm(e)} />
