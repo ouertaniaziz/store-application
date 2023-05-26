@@ -34,12 +34,25 @@ export default function SignIn() {
   };
 
   const [inputForm, setInputForm] = useState(initialState);
-  const [errorMessage, setErrorMessage] = useState(" ");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const setForm = (e) => {
     e.preventDefault();
     setInputForm({ ...inputForm, [e.target.name]: e.target.value });
     // console.log(inputForm, "this is my name input");
+  };
+  const toastMessage = () => {
+    const message = setInterval(
+      toast({
+        title: "Login Success",
+        description: "Welcome " + auth.currentUser.email,
+        status: "success",
+        duration: 1000,
+        isClosable: true,
+      }),
+      1000
+    );
+    clearInterval(message);
   };
 
   const handleSubmit = (e) => {
@@ -48,12 +61,18 @@ export default function SignIn() {
       .then((result) => {
         getDataWithCustomizedId(auth.currentUser.uid)
           .then((res) => {
-            localStorage.setItem("user", JSON.stringify(res));
-            console.log(res);
-            if (localStorage.getItem("user")) {
-              auth.currentUser.emailVerified
-                ? navigate(`/${res.role}/${auth.currentUser.uid}`)
-                : navigate("/mail-verif");
+            res.id = auth.currentUser.uid;
+
+            if (auth.currentUser.emailVerified) {
+              localStorage.setItem("user", JSON.stringify(res));
+              toastMessage();
+              setTimeout(() => {
+                navigate(`/${res.role}/${auth.currentUser.uid}`);
+                navigate(0);
+              }, 1000);
+              clearTimeout();
+            } else {
+              navigate("/mail-verif");
             }
           })
           .catch((error) => {
@@ -61,9 +80,13 @@ export default function SignIn() {
           });
       })
       .catch((error) => {
-        setErrorMessage(error.message);
-        console.log(error.message);
-        console.log(errorMessage);
+        toast({
+          title: "Error Found",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       });
   };
 
@@ -125,13 +148,6 @@ export default function SignIn() {
                 }}
                 onClick={(e) => {
                   handleSubmit(e);
-                  toast({
-                    title: "Error Found",
-                    description: errorMessage,
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                  });
                 }}
               >
                 Sign In

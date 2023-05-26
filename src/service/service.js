@@ -1,5 +1,6 @@
 import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { signOut } from "firebase/auth";
 export const addData = async (collectionData, collectionName) => {
   try {
     const data = await addDoc(collection(db, collectionName), collectionData);
@@ -20,4 +21,13 @@ export const getDataWithCustomizedId = async (id) => {
   } else {
     return null;
   }
+};
+export const userSignOut = async (auth) => {
+  await signOut(auth)
+    .then((resp) => {
+      console.log(resp);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
