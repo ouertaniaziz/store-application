@@ -8,7 +8,9 @@ export const addData = async (collectionData, collectionName) => {
     console.log("🚀 ~ file: signUp.jsx:54 ~ addData ~ error:", error);
   }
 };
+
 export const addDataWithCustomizedId = async (id, data) => {
   const docRef = doc(db, "user", id);
   await setDoc(docRef, data);
+
 };
