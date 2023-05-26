@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
 export const addData = async (collectionData, collectionName) => {
   try {
@@ -13,4 +13,13 @@ export const addDataWithCustomizedId = async (id, data) => {
   const docRef = doc(db, "user", id);
   await setDoc(docRef, data);
 
+};
+export const getDataWithCustomizedId = async (id) => {
+  const docRef = doc(db, "user", id);
+  const dataC = await getDoc(docRef);
+  if (dataC.exists()) {
+    return dataC.data();
+  } else {
+    return null;
+  }
 };
