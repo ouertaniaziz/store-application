@@ -6,13 +6,13 @@ import {
   Flex,
   Icon,
   useColorModeValue,
-  Link,
   Drawer,
   DrawerContent,
   Text,
   useDisclosure,
   BoxProps,
   FlexProps,
+  Button,
 } from "@chakra-ui/react";
 import {
   FiHome,
@@ -21,12 +21,19 @@ import {
   FiStar,
   FiSettings,
   FiMenu,
+  FiDisc,
+  FiLogOut,
 } from "react-icons/fi";
 import { IconType } from "react-icons";
 import { ReactText } from "react";
+import { NavLink, useNavigate, useParams, Link } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../../config/firebase";
+import { userSignOut } from "../../service/service";
 
-export default function SimpleSidebar({ children }) {
+export default function SimpleSidebar({ children }, props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
       <SidebarContent
@@ -58,33 +65,88 @@ export default function SimpleSidebar({ children }) {
 const SidebarContent = ({ onClose, ...rest }) => {
   const [NavItems, setNAvItems] = useState([]);
   useEffect(() => {
+    const id = JSON.parse(localStorage.getItem("user")).id;
     if (JSON.parse(localStorage.getItem("user")).role === "Admin") {
       setNAvItems([
-        { name: "Home Admin", icon: FiHome, path: "/Admin/:id/home" },
-        { name: "Trending Admin", icon: FiTrendingUp, path: "/Admin/:id/home" },
-        { name: "Explore Admin", icon: FiCompass, path: "/Admin/:id/home" },
-        { name: "Favourites Admin", icon: FiStar, path: "/Admin/:id/home" },
-        { name: "Settings Admin", icon: FiSettings, path: "/Admin/:id/home" },
+        { name: "Home Admin", icon: FiHome, path: `/Admin/${id}/home` },
+        {
+          name: "Manage Users",
+          icon: FiTrendingUp,
+          path: `/Admin/${id}/manage-users`,
+        },
+        {
+          name: "Manage Products",
+          icon: FiCompass,
+          path: `/Admin/${id}/manage-products`,
+        },
+        {
+          name: "Manage Store",
+          icon: FiStar,
+          path: `/Admin/${id}/manage-store`,
+        },
+        {
+          name: "Settings Admin",
+          icon: FiSettings,
+          path: `/Admin/${id}/settings`,
+        },
+        {
+          name: "Disconnect",
+          icon: FiLogOut,
+          path: `/Admin/${id}/settings`,
+        },
       ]);
     } else if (JSON.parse(localStorage.getItem("user")).role === "Client") {
       setNAvItems([
-        { name: "Home Client", icon: FiHome },
-        { name: "Trending ClientClient", icon: FiTrendingUp },
-        { name: "Explore Client", icon: FiCompass },
-        { name: "Favourites Client", icon: FiStar },
-        { name: "Settings Client", icon: FiSettings },
+        { name: "Home Client", icon: FiHome, path: `/Client/${id}/home` },
+        {
+          name: "Shopping",
+          icon: FiTrendingUp,
+          path: `/Client/${id}/products`,
+        },
+        {
+          name: "My Cart",
+          icon: FiCompass,
+          path: `/Client/${id}/cart`,
+        },
+        {
+          name: "My Settings",
+          icon: FiStar,
+          path: `/Client/${id}/settings`,
+        },
+        {
+          name: "Disconnect",
+          icon: FiLogOut,
+          path: `/Client/${id}/settings`,
+        },
       ]);
     } else {
       setNAvItems([
-        { name: "Home Seller", icon: FiHome },
-        { name: "Trending Seller", icon: FiTrendingUp },
-        { name: "Explore Seller", icon: FiCompass },
-        { name: "Favourites Seller", icon: FiStar },
-        { name: "Settings Seller", icon: FiSettings },
+        { name: "Home Seller", icon: FiHome, path: `/Seller/${id}/home` },
+        {
+          name: "My Stock",
+          icon: FiTrendingUp,
+          path: `/Seller/${id}/stock`,
+        },
+        {
+          name: "My Settings",
+          icon: FiStar,
+          path: `/Seller/${id}/settings`,
+        },
+        {
+          name: "Disconnect",
+          icon: FiLogOut,
+          path: `/Seller/${id}/settings`,
+        },
       ]);
     }
   }, []);
-
+  const navigate = useNavigate();
+  const logout = () => {
+    userSignOut(auth);
+    localStorage.clear();
+    navigate("signIn");
+    navigate(0);
+  };
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}
@@ -101,11 +163,17 @@ const SidebarContent = ({ onClose, ...rest }) => {
         </Text>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
-      {NavItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon} path={link.path}>
-          {link.name}
-        </NavItem>
-      ))}
+      {NavItems.map((link) => {
+        return link.name === "Disconnect" ? (
+          <NavItem key={link.name} icon={link.icon} onClick={() => logout()}>
+            Disconnect
+          </NavItem>
+        ) : (
+          <NavItem key={link.name} icon={link.icon} path={link.path}>
+            {link.name}
+          </NavItem>
+        );
+      })}
     </Box>
   );
 };
@@ -113,7 +181,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
 const NavItem = ({ icon, children, ...rest }) => {
   return (
     <Link
-      href={rest.path}
+      to={rest.path}
       style={{ textDecoration: "none" }}
       _focus={{ boxShadow: "none" }}
     >
