@@ -20,7 +20,6 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { auth, db } from "../../config/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { type } from "@testing-library/user-event/dist/type";
 import { getDataWithCustomizedId } from "../../service/service";
 
 export default function SignIn() {
